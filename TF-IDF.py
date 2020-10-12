@@ -1,8 +1,9 @@
 from collections import Counter
-from math import log
+from math import log, sqrt
 
 f1 = 'Cranfield_collection_HW/cran.qry'
 f2 = 'Cranfield_collection_HW/cran.all.1400'
+output_file = 'Cranfield_collection_HW/output.txt'
 closed_class_stop_words = ['a','the','an','and','or','but','about','above','after','along','amid','among',\
                            'as','at','by','for','from','in','into','like','minus','near','of','off','on',\
                            'onto','out','over','past','per','plus','since','till','to','under','until','up',\
@@ -91,8 +92,34 @@ def tf_idf_vectors(vocabulary, tally):
             else:
                 tf_idf.append(entry[word] * log(len(tally)/docs_containing_word[word]))
         tf_idf_list.append(tf_idf)
-    print(len(tf_idf_list))
+    # print(len(tf_idf_list))
     return tf_idf_list
+
+def output_search_result(output_file, query_tf_idf, article_tf_idf):
+    outF = open(output_file, "w")
+    for i in range(len(query_tf_idf)):
+        scores = []
+        for j in range(len(article_tf_idf)):
+            scores.append((cos_similarity(query_tf_idf[i],article_tf_idf[j]), i+1, j+1))
+        # print(scores)
+        sorted_scores = sorted(scores, key = zero_index, reverse= True)
+        for score in sorted_scores:
+            outF.write(f"{score[1]} {score[2]} {score[0]}\n")
+
+    outF.close()
+
+# taken from https://stackoverflow.com/questions/18424228/cosine-similarity-between-2-number-lists
+def cos_similarity(v1, v2):
+    sumxx, sumyy, sumxy = 0,0,0
+    for i in range(len(v1)):
+        x = v1[i]
+        y = v2[i]
+        sumxx += x * x
+        sumyy += y * y
+        sumxy += x * y
+    if sumxx * sumyy == 0:
+        return 0
+    return sumxy/sqrt(sumxx * sumyy)
 
 def check_word(word):
     start = 0
@@ -111,11 +138,15 @@ def check_word(word):
 
     return word[start:end]
 
+def zero_index(l1):
+    return l1[0]
+
 queries_entries_list = split_documents(f1)
 articles_entries_list = split_documents(f2)
 
 query_tally, query_set = process_entries_list(queries_entries_list)
 article_tally, article_set = process_entries_list(articles_entries_list)
 vocabulary = list(query_set)
-tf_idf_vectors(vocabulary, query_tally)
-tf_idf_vectors(vocabulary, article_tally)
+query_tf_idf = tf_idf_vectors(vocabulary, query_tally)
+article_tf_idf = tf_idf_vectors(vocabulary, article_tally)
+output_search_result(output_file, query_tf_idf, article_tf_idf)
