@@ -1,9 +1,9 @@
 from collections import Counter
 from math import log, sqrt
 
-f1 = 'Cranfield_collection_HW/cran.qry'
-f2 = 'Cranfield_collection_HW/cran.all.1400'
-output_file = 'Cranfield_collection_HW/output.txt'
+queries = 'Cranfield_collection_HW/cran.qry'
+articles = 'Cranfield_collection_HW/cran.all.1400'
+output_file = 'Cranfield_collection_HW/output1.txt'
 closed_class_stop_words = ['a','the','an','and','or','but','about','above','after','along','amid','among',\
                            'as','at','by','for','from','in','into','like','minus','near','of','off','on',\
                            'onto','out','over','past','per','plus','since','till','to','under','until','up',\
@@ -108,7 +108,7 @@ def output_search_result(output_file, query_tf_idf, article_tf_idf):
 
     outF.close()
 
-# taken from https://stackoverflow.com/questions/18424228/cosine-similarity-between-2-number-lists
+# clean no-library cosine_similarity algorithm implementation taken from https://stackoverflow.com/questions/18424228/cosine-similarity-between-2-number-lists
 def cos_similarity(v1, v2):
     sumxx, sumyy, sumxy = 0,0,0
     for i in range(len(v1)):
@@ -141,8 +141,8 @@ def check_word(word):
 def zero_index(l1):
     return l1[0]
 
-queries_entries_list = split_documents(f1)
-articles_entries_list = split_documents(f2)
+queries_entries_list = split_documents(queries)
+articles_entries_list = split_documents(articles)
 
 query_tally, query_set = process_entries_list(queries_entries_list)
 article_tally, article_set = process_entries_list(articles_entries_list)
